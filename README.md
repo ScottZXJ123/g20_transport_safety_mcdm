@@ -15,14 +15,6 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 | `correlations.py` | Spearman/Pearson correlation generator for all ranking comparison tables. |
 | `requirements.txt` | Minimal Python dependencies. |
 
-## Data inputs
-
-The scripts intentionally avoid embedding any raw data. Place the source spreadsheets/CSV files (e.g., `2010.xlsx`, `Road_Safety_2023_v2.xlsx`, HDI/LPI tables) anywhere you like and update each script’s `filename` or configuration block accordingly.
-
-For `grouping_gmm_tsne.py`, populate `YEAR_CONFIG` with `<year, path, normalizations>` tuples.  
-For `grouping_kmeans_cmeans.py`, do the same but provide the indicator column list for each dataset.  
-For `correlations.py`, add one `CorrelationTask` per correlation table you need (initial, medial, lateral, external, etc.).
-
 ## Usage
 
 1. Create a virtual environment and install requirements:
