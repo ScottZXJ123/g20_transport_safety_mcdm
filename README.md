@@ -5,11 +5,12 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 
 ## Contents
 
-| Script | Purpose |
+| Script(s) | Purpose |
 | --- | --- |
-| `initial_aroman_*.py` | PSI–AROMAN ranking with vector / max / min-max dual normalization (initial-sensitivity checks). |
-| `medial_aroman_*.py` | PSI–AROMAN ranking with PSI / CRITIC / Entropy weighting (medial-stability checks). |
-| `lateral_vector_psi_*.py` | AROMAN, COPRAS, PROMETHEE aggregators used for lateral reliability. |
+| `initial_aroman_max_psi.py`, `initial_aroman_minmax_psi.py` | PSI–AROMAN ranking using max and min–max dual normalizations for initial-sensitivity checks. |
+| `medial_aroman_vector_critic.py`, `medial_aroman_vector_entropy.py` | PSI–AROMAN ranking with CRITIC and Entropy weighting for medial-stability checks. |
+| `lateral_vector_psi_copras.py`, `lateral_vector_psi_promethee.py` | COPRAS and PROMETHEE aggregators used for lateral reliability analysis. |
+| `proposed_aroman_vector_psi.py` | Final PSI–AROMAN aggregation with the proposed vector-based weighting. |
 | `grouping_gmm_tsne.py` | t-SNE + GMM clustering for every year/normalization combo in Table 9 / Fig. 3. |
 | `grouping_kmeans_cmeans.py` | K-means and fuzzy C-means clustering for Table 11 comparisons. |
 | `correlations.py` | Spearman/Pearson correlation generator for all ranking comparison tables. |
@@ -26,7 +27,8 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 2. Update the file paths/configs inside each script to point at your local data.
 3. Run the scripts you need, e.g.:
    ```bash
-   python initial_aroman_vector_psi.py
+   python initial_aroman_max_psi.py
+   python initial_aroman_minmax_psi.py
    python grouping_gmm_tsne.py
    python correlations.py
    ```
