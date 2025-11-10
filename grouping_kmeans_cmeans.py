@@ -19,22 +19,7 @@ class YearConfig:
 
 
 YEAR_CONFIG: Iterable[YearConfig] = [
-    # Example:
-    # YearConfig(
-    #     year=2023,
-    #     path=Path("data/road_safety_2023.xlsx"),
-    #     columns=[
-    #         "Road_fatalities_per_100_000_inhabitants",
-    #         "Road_fatalities_per_10_000_registered_vehicles",
-    #         "Change_in_number_of_road_deaths",
-    #         "Seatbelt_wearing_rates_front_seats",
-    #         "Seatbelt_wearing_rates_rear_seats",
-    #         "Enforcement_score_speed_limit_law",
-    #         "Enforcement_score_drink_driving_law",
-    #         "Enforcement_score_seat_belt_law",
-    #         "Enforcement_score_helmet_use_law",
-    #     ],
-    # ),
+    
 ]
 
 

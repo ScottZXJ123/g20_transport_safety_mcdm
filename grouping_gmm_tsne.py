@@ -20,8 +20,6 @@ class YearConfig:
     normalizations: Sequence[str]  # e.g., ("vector", "minmax", "max")
 
 YEAR_CONFIG: Iterable[YearConfig] = [
-    # Fill these with your actual files
-    # YearConfig(2023, Path("data/road_safety_2023.xlsx"), ("vector", "minmax", "max")),
 ]
 
 NEGATIVE_INDICATORS = [
