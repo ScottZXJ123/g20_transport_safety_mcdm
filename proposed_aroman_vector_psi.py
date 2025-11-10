@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 # Load the Excel file
-filename = '*****.xlsx'
+filename = '*****.xlsx'  
 df = pd.read_excel(filename, index_col=0)
 
 # Decision matrix and criteria names
@@ -35,28 +35,26 @@ for j in range(n):
 beta = 0.5 # Weighing factor
 aggregated_averaged_normalization = (beta * normalized_decision_matrix_1 + (1 - beta) * normalized_decision_matrix_2) / 2
 
-# Calculate weights using the PS (Pairwise Score) method
-# This is a simplified version of PS method
+# Calculate weights using the Preference Selection Index (PSI) method
 data = df.to_numpy()
 m, n = data.shape
 
-# Normalize the data
-normalized_data = np.zeros_like(data, dtype=float)
+# Calculate the preference variation value (PVj)
+PVj = np.zeros((m, n))  # Create a 2D array to store the element-wise division results
 for j in range(n):
     if j in negative_indicators:
-        normalized_data[:, j] = np.min(data[:, j]) / data[:, j]
+        x_min = np.min(data[:, j])
+        PVj[:, j] = x_min / data[:, j]  # Perform element-wise division and store the result in PVj[:, j]
     else:
-        normalized_data[:, j] = data[:, j] / np.max(data[:, j])
+        x_max = np.max(data[:, j])
+        PVj[:, j] = data[:, j] / x_max
 
-# Calculate pairwise score matrix
-ps_matrix = np.zeros((n, n))
-for i in range(n):
-    for j in range(n):
-        if i != j:
-            ps_matrix[i, j] = np.sum(np.abs(normalized_data[:, i] - normalized_data[:, j])) / m
+# Calculate the deviation of the preference value (DPVj)
+DPVj = np.mean(np.abs(PVj - np.mean(PVj, axis=0)), axis=0)
 
-# Calculate the weights
-weights = np.sum(ps_matrix, axis=1) / np.sum(ps_matrix)
+# Calculate the weights wj using the Preference Selection Index (PSIj)
+PSIj = DPVj / np.sum(DPVj)
+weights = PSIj / np.sum(PSIj)
 
 # Step 3. Multiply the Aggregated Averaged Normalized decision-making matrix with the criteria weights to obtain a weighted DM matrix
 weighted_dm_matrix = aggregated_averaged_normalization * weights
@@ -96,4 +94,4 @@ rankings_original_order = np.arange(1, len(df) + 1)[np.argsort(ranking_order)]
 # Print the rankings array in the original order
 print("Rankings in original order:")
 for i in rankings_original_order:
-    print(i) 
+    print(i)
