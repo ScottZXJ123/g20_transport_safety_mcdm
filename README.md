@@ -14,7 +14,7 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 | `grouping_gmm_tsne.py` | t-SNE + GMM clustering for every year/normalization combo in Table 9 / Fig. 3. |
 | `grouping_kmeans_cmeans.py` | K-means and fuzzy C-means clustering for Table 11 comparisons. |
 | `correlations.py` | Spearman/Pearson correlation generator for all ranking comparison tables. |
-| `requirements.txt` | Minimal Python dependencies. |
+| `requirements.txt` | Python dependencies. |
 
 ## Usage
 
