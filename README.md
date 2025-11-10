@@ -35,4 +35,3 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 ## Notes
 
 - The code assumes the column names shown in the paper (A31…C44 / full indicator names). Keep them consistent when preparing your spreadsheets.
-- Plots were removed from this release to focus on reproducibility of numeric tables. You can add them back by adapting the archived scripts in the parent directory, if needed.
