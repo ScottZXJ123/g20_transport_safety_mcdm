@@ -1,4 +1,3 @@
-
 import sys
 print(sys.executable)
 print(sys.version)
@@ -8,14 +7,11 @@ import pandas as pd
 # Load the Excel file
 filename = '*****.xlsx'
 df = pd.read_excel(filename, index_col=0)
-#这里假如第一行第一列是空白的，代码会如何处理？
 # Decision matrix and criteria names
 decision_matrix = df.values
 criteria_names = df.columns[:]
-#这里[:]是什么意思？
 # Number of alternatives (m) and criteria (n)
 m, n = decision_matrix.shape
-#这里的shape包含行和列的名字吗？
 # Indices of negative (cost) indicators
 negative_indicators = [0, 1, 2]
 
@@ -30,12 +26,9 @@ for j in range(n):
         normalized_decision_matrix[:, j] = (1 / decision_matrix[:, j]) / np.sqrt(np.sum(1/decision_matrix[:, j] ** 2))
     else:
         normalized_decision_matrix[:, j] = decision_matrix[:, j] / np.sqrt(np.sum(decision_matrix[:, j] ** 2))
-#请问以上是在做什么，能否用公式表现一下？
 # Calculate weights using the Preference Selection Index (PSI) method
 data = df.to_numpy()
 m, n = data.shape
-#这里的data是从哪里来的？to_numpy是什么意思？
-#data的shape是什么shape？
 # Calculate the preference variation value (PVj)
 PVj = np.zeros((m, n))  # Create a 2D array to store the element-wise division results
 for j in range(n):
@@ -45,14 +38,12 @@ for j in range(n):
     else:
         x_max = np.max(data[:, j])
         PVj[:, j] = data[:, j] / x_max
-#请问以上是在做什么，能否用公式表现一下？
 # Calculate the deviation of the preference value (DPVj)
 DPVj = np.mean(np.abs(PVj - np.mean(PVj, axis=0)), axis=0)
 
 # Calculate the weights wj using the Preference Selection Index (PSIj)
 PSIj = DPVj / np.sum(DPVj)
 weights = PSIj / np.sum(PSIj)
-#PVj，DPVj以及PSIj分别是什么意思？
 # Define the preference function (e.g., linear preference function)
 def preference_function(d):
     return np.where(d <= 0, 0, np.where(d <= 1, d, 1))
@@ -74,7 +65,6 @@ for i in range(m):
 # Calculate the positive and negative outranking flows
 positive_flow = np.mean(aggregated_preference_indices, axis=1)
 negative_flow = np.mean(aggregated_preference_indices, axis=0)
-#为什么positive flow的axis=1，negative——flow的axis = 0。解释一下这个函数怎么用的？
 # Calculate the net outranking flow
 net_flow = positive_flow - negative_flow
 
@@ -97,7 +87,6 @@ rankings_str = rankings_df.to_string(index=False)
 # Output the rankings DataFrame
 print(rankings_str)
 rankings_original_order = np.arange(1, len(df) + 1)[np.argsort(ranking_order)]
-#这里的argsort是什么意思？
 # Print the rankings array in the original order
 print("Rankings in original order:")
 for i in rankings_original_order:
