@@ -15,6 +15,7 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 | `grouping_kmeans_cmeans.py` | K-means and fuzzy C-means clustering for Table 11 comparisons. |
 | `correlations.py` | Spearman/Pearson correlation generator for all ranking comparison tables. |
 | `requirements.txt` | Python dependencies. |
+| `aroman_core.py` | Shared normalization, weighting, and ranking kernels used by all AROMAN scripts. |
 
 ## Usage
 
@@ -37,3 +38,10 @@ Each script maps one-to-one to the analyses reported in the manuscript (ranking,
 ## Notes
 
 - The code assumes the column names shown in the paper (A31…C44 / full indicator names). Keep them consistent when preparing your spreadsheets.
+
+## Engineering improvements
+
+- Core AROMAN math is centralized in `aroman_core.py`, reducing duplicated logic and preventing divergence across scripts.
+- Added numerical safeguards for divide-by-zero and zero-variance criteria.
+- Fixed scaling aggregation to use a true convex combination (`beta * N1 + (1-beta) * N2`) instead of an unintended extra division.
+- Clustering scripts now validate required columns consistently and avoid common runtime errors (e.g., missing metric columns, unstable t-SNE perplexity).
