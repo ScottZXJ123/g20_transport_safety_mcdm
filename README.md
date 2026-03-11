@@ -151,7 +151,7 @@ Each algorithm implemented in `aroman_core.py` follows its canonical definition 
 | PSI weighting | [Maniya & Bhatt (2010)](https://doi.org/10.1016/j.matdes.2009.11.020) |
 | CRITIC weighting | [Diakoulaki et al. (1995)](https://doi.org/10.1016/0305-0548(94)00059-H) |
 | Shannon entropy weighting | [Shannon (1948)](https://doi.org/10.1002/j.1538-7305.1948.tb01338.x); Zeleny (1982) |
-| AROMAN scoring | [Boskovic et al. (2023)](https://doi.org/10.1109/ACCESS.2023.3332357) |
+| AROMAN scoring | [Boskovic et al. (2023)](https://doi.org/10.1109/ACCESS.2023.3332357)](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10097712) |
 | COPRAS scoring | Zavadskas et al. (1994) |
 | PROMETHEE II scoring | [Brans et al. (1986)](https://doi.org/10.1016/0377-2217(86)90044-5) |
 
