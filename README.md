@@ -15,7 +15,7 @@ Open-source implementation accompanying the following peer-reviewed publication:
 This repository provides a reproducible implementation of the **PSI-AROMAN-GMM with t-SNE** framework, a hybrid multi-criteria decision-making (MCDM) model designed for transport safety engineering applications. The framework integrates:
 
 - **PSI** (Preference Selection Index; [Maniya & Bhatt, 2010](https://doi.org/10.1016/j.matdes.2009.11.020)) for objective criteria weighting
-- **AROMAN** (Alternative Ranking Order Method Accounting for two-step Normalization; [Boskovic et al., 2023]([https://doi.org/10.1109/ACCESS.2023.3332357](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10097712))) for multi-criteria aggregation
+- **AROMAN** (Alternative Ranking Order Method Accounting for two-step Normalization; [Boskovic et al., 2023](https://doi.org/10.1109/ACCESS.2023.3332357](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10097712))) for multi-criteria aggregation
 - **GMM** (Gaussian Mixture Model) with **t-SNE** (t-distributed Stochastic Neighbor Embedding) for unsupervised clustering
 
 The framework supports ranking, grouping, and robustness analysis of alternatives (e.g., countries) across multiple safety performance indicators.
