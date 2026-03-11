@@ -142,20 +142,21 @@ def max_normalization(matrix: np.ndarray, negative_indicators: set[int]) -> np.n
 
 
 def vector_normalization(matrix: np.ndarray, negative_indicators: set[int]) -> np.ndarray:
-    """Vector (Euclidean) normalization (Eqs. 4-5).
+    """Vector (Euclidean) normalization.
 
-    Benefit: x''_ij = x_ij / sqrt(sum(x_ij^2))
-    Cost:    x''_ij = (1/x_ij) / sqrt(sum((1/x_ij)^2))
+    Benefit: r_ij = x_ij / sqrt(sum(x_ij^2))
+    Cost:    r_ij = 1 - x_ij / sqrt(sum(x_ij^2))
+
+    This follows the standard formulation where cost criteria are
+    inverted by subtracting the benefit-normalized value from 1.
     """
-    out = np.zeros_like(matrix, dtype=float)
-    for j in range(matrix.shape[1]):
-        col = matrix[:, j]
-        if j in negative_indicators:
-            transformed = _safe_divide(np.ones_like(col), col)
-        else:
-            transformed = col
-        denom = np.sqrt(np.sum(transformed ** 2))
-        out[:, j] = _safe_divide(transformed, np.full_like(transformed, denom))
+    norms = np.sqrt(np.sum(matrix ** 2, axis=0))
+    benefit = _safe_divide(matrix, norms)
+
+    out = benefit.copy()
+    if negative_indicators:
+        idx = np.array(sorted(negative_indicators), dtype=int)
+        out[:, idx] = 1.0 - benefit[:, idx]
     return out
 
 
@@ -211,23 +212,27 @@ def psi_weights(matrix: np.ndarray, negative_indicators: set[int]) -> np.ndarray
 def critic_weights(matrix: np.ndarray, negative_indicators: set[int]) -> np.ndarray:
     """CRITIC (CRiteria Importance Through Intercriteria Correlation) weights.
 
-    C_j = sigma_j * sum_k(1 - corr(j,k))
-    W_j = C_j / sum(C_j)
-
-    The internal normalization uses preference ratios (min/x for cost,
-    x/max for benefit) before computing standard deviations and
-    correlations.
+    Standard formulation from Diakoulaki et al. (1995):
+      1. Min-max normalize the decision matrix.
+      2. sigma_j = std of normalized column j.
+      3. r_jk   = Pearson correlation between columns j and k.
+      4. C_j    = sigma_j * sum_k(1 - r_jk)
+      5. W_j    = C_j / sum(C_j)
     """
     n = matrix.shape[1]
-    normalized = np.zeros_like(matrix, dtype=float)
-    for j in range(n):
-        col = matrix[:, j]
-        if j in negative_indicators:
-            normalized[:, j] = _safe_divide(np.full_like(col, col.min()), col)
-        else:
-            normalized[:, j] = _safe_divide(col, np.full_like(col, col.max()))
+    mins = matrix.min(axis=0)
+    maxs = matrix.max(axis=0)
+    span = maxs - mins
 
-    std = np.std(normalized, axis=0)
+    # Standard CRITIC uses min-max normalization (Diakoulaki et al., 1995)
+    benefit = _safe_divide(matrix - mins, span)
+    cost = _safe_divide(maxs - matrix, span)
+    normalized = benefit.copy()
+    if negative_indicators:
+        idx = np.array(sorted(negative_indicators), dtype=int)
+        normalized[:, idx] = cost[:, idx]
+
+    std = np.std(normalized, axis=0, ddof=0)
     corr = np.corrcoef(normalized.T)
     corr = np.nan_to_num(corr, nan=0.0)
     cj = std * np.sum(1 - corr, axis=1)
@@ -269,12 +274,13 @@ def entropy_weights(matrix: np.ndarray) -> np.ndarray:
 
 def aroman_scores(weighted_matrix: np.ndarray, negative_indicators: set[int],
                   lambda_value: float) -> np.ndarray:
-    """AROMAN aggregation score (Eqs. 13-14).
+    """AROMAN aggregation score (Boskovic et al., 2023).
 
-    L_i = sum of weighted values for cost (negative) criteria   [Eq. 13]
-    A_i = sum of weighted values for benefit (positive) criteria [Eq. 13]
-    R_i = lambda * L_i + (1 - lambda) * A_i                     [Eq. 14]
+    L_i = sum of weighted values for cost (negative) criteria
+    A_i = sum of weighted values for benefit (positive) criteria
+    R_i = L_i^lambda + A_i^(1 - lambda)
 
+    With lambda = 0.5 this becomes R_i = sqrt(L_i) + sqrt(A_i).
     Higher R_i indicates better overall performance.
     """
     if not 0 <= lambda_value <= 1:
@@ -283,7 +289,7 @@ def aroman_scores(weighted_matrix: np.ndarray, negative_indicators: set[int],
     neg_mask = np.isin(np.arange(n), list(negative_indicators))
     l_i = weighted_matrix[:, neg_mask].sum(axis=1)
     a_i = weighted_matrix[:, ~neg_mask].sum(axis=1)
-    return lambda_value * l_i + (1 - lambda_value) * a_i
+    return np.power(l_i, lambda_value) + np.power(a_i, 1 - lambda_value)
 
 
 def copras_scores(weighted_matrix: np.ndarray, negative_indicators: set[int]) -> np.ndarray:
@@ -304,12 +310,18 @@ def copras_scores(weighted_matrix: np.ndarray, negative_indicators: set[int]) ->
 
 
 def promethee_scores(normalized_matrix: np.ndarray, weights: np.ndarray) -> np.ndarray:
-    """PROMETHEE II net-flow scores.
+    """PROMETHEE II net-flow scores (Brans et al., 1986).
 
-    Uses a linear preference function (clipped difference).
-    phi(a) = phi+(a) - phi-(a), where
-        phi+(a) = mean_b pi(a,b),  phi-(a) = mean_b pi(b,a)
-        pi(a,b) = sum_k w_k * P_k(a,b)
+    Uses the V-shape (Type III) preference function with threshold p=1:
+        P_k(a, b) = clip(f_k(a) - f_k(b), 0, 1)
+
+    Aggregated preference:
+        pi(a, b) = sum_k w_k * P_k(a, b)
+
+    Flows (standard divisor n-1, excluding self-comparison):
+        phi+(a) = 1/(n-1) * sum_{b != a} pi(a, b)
+        phi-(a) = 1/(n-1) * sum_{b != a} pi(b, a)
+        phi(a)  = phi+(a) - phi-(a)
     """
     m, n = normalized_matrix.shape
     preference_indices = np.zeros((m, m, n), dtype=float)
@@ -317,8 +329,10 @@ def promethee_scores(normalized_matrix: np.ndarray, weights: np.ndarray) -> np.n
         diff = normalized_matrix[:, [k]] - normalized_matrix[:, k]
         preference_indices[:, :, k] = np.clip(diff, 0, 1)
     aggregated = np.tensordot(preference_indices, weights, axes=([2], [0]))
-    positive_flow = aggregated.mean(axis=1)
-    negative_flow = aggregated.mean(axis=0)
+    # Standard PROMETHEE II divides by (m - 1), excluding self-comparison
+    divisor = max(m - 1, 1)
+    positive_flow = aggregated.sum(axis=1) / divisor
+    negative_flow = aggregated.sum(axis=0) / divisor
     return positive_flow - negative_flow
 
 
