@@ -334,7 +334,7 @@ def aroman_scores(weighted_matrix: np.ndarray, negative_indicators: set[int],
     method accounting for two-step normalization (AROMAN) - A case
     study of the e-commerce development in the European Union.
     IEEE Access, 11, 129820-129838.
-    https://doi.org/10.1109/ACCESS.2023.3332357
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10097712&tag=1
     """
     if not 0 <= lambda_value <= 1:
         raise ValueError("lambda_value must be between 0 and 1")
