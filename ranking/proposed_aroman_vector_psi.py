@@ -1,23 +1,23 @@
-"""Medial stability: AROMAN with entropy weighting.
+"""PSI-AROMAN ranking with aggregated vector + linear normalization (proposed method).
 
-Normalization: linear + vector, aggregated (Eq. 6).
-Weighting:     Information entropy.
+This is the primary method introduced in the paper (Steps 1-5).
+Normalization: linear + vector, aggregated with beta weighting (Eq. 6).
+Weighting:     PSI (Eqs. 7-11).
 Scoring:       AROMAN (Eqs. 13-14).
-
-Used for the medial-stability comparison in Table 5 ("Entropy" column).
 """
 import argparse
+import sys
 from pathlib import Path
 
-import numpy as np
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aroman_core import (
     AromanConfig,
     aggregate_normalizations,
     aroman_scores,
-    entropy_weights,
     linear_normalization,
     load_decision_matrix,
+    psi_weights,
     ranking_frame,
     vector_normalization,
 )
@@ -28,8 +28,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("data", type=Path, help="Path to Excel/CSV decision-matrix file")
     p.add_argument("--negative", type=int, nargs="+", default=[0, 1, 2],
                    help="Zero-based column indices of cost (negative) indicators (default: 0 1 2)")
-    p.add_argument("--beta", type=float, default=0.5)
-    p.add_argument("--lambda-value", type=float, default=0.5)
+    p.add_argument("--beta", type=float, default=0.5,
+                   help="Normalization aggregation weight (default: 0.5)")
+    p.add_argument("--lambda-value", type=float, default=0.5,
+                   help="AROMAN scoring parameter (default: 0.5)")
     return p
 
 
@@ -42,10 +44,9 @@ def main(config: AromanConfig) -> None:
     norm_vector = vector_normalization(matrix, negative)
     aggregated = aggregate_normalizations(norm_linear, norm_vector, config.beta)
 
-    # Entropy weights require non-negative values; shift the raw matrix if needed.
-    matrix_shifted = matrix - np.minimum(matrix.min(axis=0), 0)
-    weights = entropy_weights(matrix_shifted)
-
+    # PSI weights are computed on the aggregated normalized matrix (Eqs. 7-8).
+    # After normalization all criteria are benefit-oriented, so no negatives.
+    weights = psi_weights(aggregated, negative_indicators=set())
     weighted = aggregated * weights
     scores = aroman_scores(weighted, negative, config.lambda_value)
 

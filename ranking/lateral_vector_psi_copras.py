@@ -1,21 +1,24 @@
-"""Medial stability: AROMAN with CRITIC weighting.
+"""Lateral reliability: PSI + COPRAS aggregation.
 
 Normalization: linear + vector, aggregated (Eq. 6).
-Weighting:     CRITIC (intercriteria correlation-based).
-Scoring:       AROMAN (Eqs. 13-14).
+Weighting:     PSI (Eqs. 7-11).
+Scoring:       COPRAS.
 
-Used for the medial-stability comparison in Table 5 ("CRITIC" column).
+Used for the lateral-reliability comparison in Table 7 ("COPRAS" column).
 """
 import argparse
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aroman_core import (
     AromanConfig,
     aggregate_normalizations,
-    aroman_scores,
-    critic_weights,
+    copras_scores,
     linear_normalization,
     load_decision_matrix,
+    psi_weights,
     ranking_frame,
     vector_normalization,
 )
@@ -27,7 +30,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--negative", type=int, nargs="+", default=[0, 1, 2],
                    help="Zero-based column indices of cost (negative) indicators (default: 0 1 2)")
     p.add_argument("--beta", type=float, default=0.5)
-    p.add_argument("--lambda-value", type=float, default=0.5)
     return p
 
 
@@ -40,12 +42,12 @@ def main(config: AromanConfig) -> None:
     norm_vector = vector_normalization(matrix, negative)
     aggregated = aggregate_normalizations(norm_linear, norm_vector, config.beta)
 
-    # CRITIC performs its own internal normalization on raw values.
-    weights = critic_weights(matrix, negative)
+    # PSI weights on the aggregated normalized matrix (Eqs. 7-8).
+    weights = psi_weights(aggregated, negative_indicators=set())
     weighted = aggregated * weights
-    scores = aroman_scores(weighted, negative, config.lambda_value)
+    scores = copras_scores(weighted, negative)
 
-    rankings = ranking_frame(df.index, scores, "R_i")
+    rankings = ranking_frame(df.index, scores, "Ui")
     print(rankings.to_string(index=False))
 
 
@@ -55,6 +57,5 @@ if __name__ == "__main__":
         data_path=args.data,
         negative_indicators=tuple(args.negative),
         beta=args.beta,
-        lambda_value=args.lambda_value,
     )
     main(cfg)

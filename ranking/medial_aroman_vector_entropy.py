@@ -1,25 +1,28 @@
-"""Initial sensitivity: PSI-AROMAN with linear + min-max normalization.
+"""Medial stability: AROMAN with entropy weighting.
 
-Normalization: linear + linear (min-max equivalent), aggregated (Eq. 6).
-Weighting:     PSI (Eqs. 7-11).
+Normalization: linear + vector, aggregated (Eq. 6).
+Weighting:     Information entropy.
 Scoring:       AROMAN (Eqs. 13-14).
 
-Used for the initial-sensitivity comparison in Table 3 ("MinMax" column).
-Note: min-max normalization is mathematically identical to the linear
-normalization defined in Eqs. 2-3, so both inputs to the aggregation
-are the same transform.
+Used for the medial-stability comparison in Table 5 ("Entropy" column).
 """
 import argparse
+import sys
 from pathlib import Path
+
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aroman_core import (
     AromanConfig,
     aggregate_normalizations,
     aroman_scores,
+    entropy_weights,
     linear_normalization,
     load_decision_matrix,
-    psi_weights,
     ranking_frame,
+    vector_normalization,
 )
 
 
@@ -39,12 +42,13 @@ def main(config: AromanConfig) -> None:
     negative = set(config.negative_indicators)
 
     norm_linear = linear_normalization(matrix, negative)
-    # Min-max normalization is equivalent to linear normalization (Eqs. 2-3).
-    norm_minmax = linear_normalization(matrix, negative)
-    aggregated = aggregate_normalizations(norm_linear, norm_minmax, config.beta)
+    norm_vector = vector_normalization(matrix, negative)
+    aggregated = aggregate_normalizations(norm_linear, norm_vector, config.beta)
 
-    # PSI weights on the aggregated normalized matrix (Eqs. 7-8).
-    weights = psi_weights(aggregated, negative_indicators=set())
+    # Entropy weights require non-negative values; shift the raw matrix if needed.
+    matrix_shifted = matrix - np.minimum(matrix.min(axis=0), 0)
+    weights = entropy_weights(matrix_shifted)
+
     weighted = aggregated * weights
     scores = aroman_scores(weighted, negative, config.lambda_value)
 
