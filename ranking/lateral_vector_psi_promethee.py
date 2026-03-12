@@ -7,7 +7,10 @@ Scoring:       PROMETHEE II (net flow).
 Used for the lateral-reliability comparison in Table 7 ("PROMETHEE" column).
 """
 import argparse
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aroman_core import (
     AromanConfig,

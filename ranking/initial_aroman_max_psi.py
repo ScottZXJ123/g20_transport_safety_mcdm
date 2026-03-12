@@ -7,7 +7,10 @@ Scoring:       AROMAN (Eqs. 13-14).
 Used for the initial-sensitivity comparison in Table 3 ("Max" column).
 """
 import argparse
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aroman_core import (
     AromanConfig,

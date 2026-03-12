@@ -35,13 +35,13 @@ Requires Python 3.9+.
 ### Ranking (proposed method)
 
 ```bash
-python proposed_aroman_vector_psi.py data_2023.xlsx --negative 0 1 2
+python ranking/proposed_aroman_vector_psi.py data_2023.xlsx --negative 0 1 2
 ```
 
 ### Clustering (t-SNE + GMM)
 
 ```bash
-python grouping_gmm_tsne.py data_2023.xlsx --years 2023 --methods vector minmax max
+python clustering/grouping_gmm_tsne.py data_2023.xlsx --years 2023 --methods vector minmax max
 ```
 
 ### Correlation analysis
@@ -52,19 +52,24 @@ python correlations.py rankings.xlsx --name table_4
 
 ## Repository Structure
 
-| File | Paper Reference | Description |
-|------|----------------|-------------|
-| `aroman_core.py` | Section 4 | Core library: normalization (Eqs. 2-6), weighting (Eqs. 7-11), scoring (Eqs. 13-14) |
-| `proposed_aroman_vector_psi.py` | Table 1 | **Proposed method**: linear + vector normalization, PSI weights, AROMAN scores |
-| `initial_aroman_max_psi.py` | Table 3 (Max) | Initial sensitivity analysis: max normalization variant |
-| `initial_aroman_minmax_psi.py` | Table 3 (MinMax) | Initial sensitivity analysis: min-max normalization variant |
-| `medial_aroman_vector_critic.py` | Table 5 (CRITIC) | Medial stability analysis: CRITIC weighting variant |
-| `medial_aroman_vector_entropy.py` | Table 5 (Entropy) | Medial stability analysis: entropy weighting variant |
-| `lateral_vector_psi_copras.py` | Table 7 (COPRAS) | Lateral reliability analysis: COPRAS aggregation variant |
-| `lateral_vector_psi_promethee.py` | Table 7 (PROMETHEE) | Lateral reliability analysis: PROMETHEE II aggregation variant |
-| `grouping_gmm_tsne.py` | Tables 2, 9-10, Fig. 3 | t-SNE dimensionality reduction + GMM clustering |
-| `grouping_kmeans_cmeans.py` | Tables 11-12 | K-means and fuzzy C-means benchmark clustering |
-| `correlations.py` | Tables 4, 6, 8 | Spearman and Pearson correlation analysis |
+```
+├── aroman_core.py                              # Core algorithm library
+├── correlations.py                             # Spearman/Pearson correlation analysis
+├── ranking/                                    # MCDM ranking scripts
+│   ├── proposed_aroman_vector_psi.py           # Proposed method (Table 1)
+│   ├── initial_aroman_max_psi.py               # Initial sensitivity: max (Table 3)
+│   ├── initial_aroman_minmax_psi.py            # Initial sensitivity: min-max (Table 3)
+│   ├── medial_aroman_vector_critic.py          # Medial stability: CRITIC (Table 5)
+│   ├── medial_aroman_vector_entropy.py         # Medial stability: entropy (Table 5)
+│   ├── lateral_vector_psi_copras.py            # Lateral reliability: COPRAS (Table 7)
+│   └── lateral_vector_psi_promethee.py         # Lateral reliability: PROMETHEE II (Table 7)
+├── clustering/                                 # Unsupervised clustering scripts
+│   ├── grouping_gmm_tsne.py                    # t-SNE + GMM (Tables 2, 9-10, Fig. 3)
+│   └── grouping_kmeans_cmeans.py               # K-means + fuzzy C-means (Tables 11-12)
+├── README.md
+├── LICENSE
+└── requirements.txt
+```
 
 ## Methodology
 
